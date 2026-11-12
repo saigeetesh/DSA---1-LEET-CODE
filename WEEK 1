@@ -1,0 +1,435 @@
+1.LC 1 two sum 
+code:
+import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, Integer> map = new HashMap<>();
+
+        for(int i =0; i < nums.length; i++) {
+            int complement = target - nums[i];
+            if (map.containsKey(complement)) {
+                return new int[] {map.get(complement), i};
+
+            }
+            map.put(nums[i],i);
+        }
+
+        return new int[] {};
+    }
+}
+2.LC 217 contains duplicate
+code:
+import java.util.HashSet;
+import java.util.Set;
+
+class Solution {
+    public boolean containsDuplicate(int[] nums) {
+        Set<Integer> seen = new HashSet<>();
+
+        for (int num : nums) {
+            if(!seen.add(num)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+3.LC 268 missing number
+code:
+class Solution {
+    public int missingNumber(int[] nums) {
+        int n = nums.length;
+        int expectedSum = n * (n + 1) / 2;
+        int actualSum = 0;
+
+        for(int num: nums) {
+            actualSum += num;
+        }
+
+        return expectedSum - actualSum;
+        
+    }
+}
+4. LC 15 maximum subarray
+code:
+class Solution {
+    public int maxSubArray(int[] nums) {
+        int maxSoFar = nums[0];
+        int currentMax = nums[0];
+
+        for(int i = 1; i < nums.length; i++ ) {
+
+            currentMax = Math.max(nums[i], currentMax + nums[i]);
+
+            maxSoFar = Math.max(maxSoFar, currentMax);
+        }
+
+        return maxSoFar;
+        
+    }
+}
+5. LC 204 count prime
+code:
+class Solution {
+    public int countPrimes(int n) {
+        if (n <= 2) {
+            return 0;
+        }
+
+        // isPrime[i] will store whether i is prime or not
+        boolean[] isPrime = new boolean[n];
+        // Initialize all entries as true
+        for (int i = 2; i < n; i++) {
+            isPrime[i] = true;
+        }
+
+        // Apply Sieve of Eratosthenes
+        for (int i = 2; i * i < n; i++) {
+            if (isPrime[i]) {
+                // Mark multiples of i starting from i * i as false
+                for (int j = i * i; j < n; j += i) {
+                    isPrime[j] = false;
+                }
+            }
+        }
+
+        // Count remaining primes
+        int count = 0;
+        for (int i = 2; i < n; i++) {
+            if (isPrime[i]) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+}
+6. LC 69 sqrt(x)
+code:
+class Solution {
+    public int mySqrt(int x) {
+        if (x < 2) {
+            return x;
+        }
+
+        int left = 1;
+        int right = x / 2;
+        int ans = 0;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            // Use long to prevent integer overflow when calculating mid * mid
+            if ((long) mid * mid <= x) {
+                ans = mid; // Record mid as potential answer
+                left = mid + 1; // Try to find a larger value
+            } else {
+                right = mid - 1; // mid * mid is too large
+            }
+        }
+
+        return ans;
+    }
+}
+6. LC 1512 number of good pairs 
+code:
+class Solution {
+    public int numIdenticalPairs(int[] nums) {
+
+        int[] freq = new int[101];
+        int goodPairs = 0;
+
+        for (int num: nums) {
+
+            goodPairs  += freq[num];
+
+            freq[num]++;
+        }
+
+        return goodPairs;
+        
+    }
+}
+7. LC 167 two sum ll input aray is sorted
+code:
+class Solution {
+    public int[] twoSum(int[] numbers, int target) {
+        int left = 0;
+        int right = numbers.length - 1;
+
+        while (left < right) {
+            int currentSum = numbers[left] + numbers[right];
+
+            if (currentSum == target) {
+                // Returns 1-indexed positions as required by the problem statement
+                return new int[]{left + 1, right + 1};
+            } else if (currentSum < target) {
+                left++; // Move left pointer rightward to increase the sum
+            } else {
+                right--; // Move right pointer leftward to decrease the sum
+            }
+        }
+
+        return new int[]{-1, -1};
+    }
+}
+8. LC 219 contains duplicate ll
+code:
+import java.util.*;
+
+class Solution {
+    public boolean containsNearbyDuplicate(int[] nums, int k) {
+
+        HashMap<Integer, Integer> map = new HashMap<>();
+
+        for (int i = 0; i < nums.length; i++) {
+
+            if (map.containsKey(nums[i])) {
+
+                if (i - map.get(nums[i]) <= k) {
+                    return true;
+                }
+            }
+
+            map.put(nums[i], i);
+        }
+
+        return false;
+    }
+}
+9. LC 448 find all numbers disappeared in an array 
+code:
+import java.util.*;
+
+class Solution {
+    public List<Integer> findDisappearedNumbers(int[] nums) {
+
+        List<Integer> result = new ArrayList<>();
+
+        // Mark numbers as negative
+        for (int i = 0; i < nums.length; i++) {
+
+            int index = Math.abs(nums[i]) - 1;
+
+            if (nums[index] > 0) {
+                nums[index] = -nums[index];
+            }
+        }
+
+        // Find missing numbers
+        for (int i = 0; i < nums.length; i++) {
+
+            if (nums[i] > 0) {
+                result.add(i + 1);
+            }
+        }
+
+        return result;
+    }
+}
+10. LC 918 maximum sum circular subarray
+code:
+import java.util.*;
+
+class Solution {
+    public List<Integer> findDisappearedNumbers(int[] nums) {
+
+        List<Integer> result = new ArrayList<>();
+
+        // Mark numbers as negative
+        for (int i = 0; i < nums.length; i++) {
+
+            int index = Math.abs(nums[i]) - 1;
+
+            if (nums[index] > 0) {
+                nums[index] = -nums[index];
+            }
+        }
+
+        // Find missing numbers
+        for (int i = 0; i < nums.length; i++) {
+
+            if (nums[i] > 0) {
+                result.add(i + 1);
+            }
+        }
+
+        return result;
+    }
+}
+11. LC 2523  closest prime numbers in range
+code:
+class Solution {
+
+    public int[] closestPrimes(int left, int right) {
+
+        int prev = -1;
+        int minDiff = Integer.MAX_VALUE;
+
+        int[] ans = {-1, -1};
+
+        for (int num = left; num <= right; num++) {
+
+            if (isPrime(num)) {
+
+                if (prev != -1) {
+
+                    int diff = num - prev;
+
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        ans[0] = prev;
+                        ans[1] = num;
+                    }
+
+                    if (minDiff <= 2) {
+                        return ans;
+                    }
+                }
+
+                prev = num;
+            }
+        }
+
+        return ans;
+    }
+
+    private boolean isPrime(int n) {
+
+        if (n < 2) {
+            return false;
+        }
+
+        for (int i = 2; i * i <= n; i++) {
+
+            if (n % i == 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+12. LC 41 first missing positive
+code:
+class Solution {
+    public int firstMissingPositive(int[] nums) {
+
+        int n = nums.length;
+
+        // Place each number at its correct index
+        for (int i = 0; i < n; i++) {
+
+            while (nums[i] >= 1 &&
+                   nums[i] <= n &&
+                   nums[nums[i] - 1] != nums[i]) {
+
+                int correctIndex = nums[i] - 1;
+
+                int temp = nums[i];
+                nums[i] = nums[correctIndex];
+                nums[correctIndex] = temp;
+            }
+        }
+
+        // Find the first missing positive number
+        for (int i = 0; i < n; i++) {
+
+            if (nums[i] != i + 1) {
+                return i + 1;
+            }
+        }
+
+        return n + 1;
+    }
+}
+13. LC 2364 count number of bad pairs
+code:
+import java.util.*;
+
+class Solution {
+    public long countBadPairs(int[] nums) {
+
+        HashMap<Long, Long> map = new HashMap<>();
+
+        long totalPairs = (long) nums.length * (nums.length - 1) / 2;
+        long goodPairs = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+
+            long key = (long) nums[i] - i;
+
+            goodPairs += map.getOrDefault(key, 0L);
+
+            map.put(key, map.getOrDefault(key, 0L) + 1);
+        }
+
+        return totalPairs - goodPairs;
+    }
+}
+14. LC 229 majority element ll
+code:
+import java.util.*;
+
+class Solution {
+    public List<Integer> majorityElement(int[] nums) {
+
+        int candidate1 = 0;
+        int candidate2 = 0;
+
+        int count1 = 0;
+        int count2 = 0;
+
+        // Find two possible candidates
+        for (int num : nums) {
+
+            if (num == candidate1) {
+                count1++;
+            }
+            else if (num == candidate2) {
+                count2++;
+            }
+            else if (count1 == 0) {
+                candidate1 = num;
+                count1 = 1;
+            }
+            else if (count2 == 0) {
+                candidate2 = num;
+                count2 = 1;
+            }
+            else {
+                count1--;
+                count2--;
+            }
+        }
+
+        // Verify candidates
+        count1 = 0;
+        count2 = 0;
+
+        for (int num : nums) {
+            if (num == candidate1) {
+                count1++;
+            }
+            else if (num == candidate2) {
+                count2++;
+            }
+        }
+
+        List<Integer> result = new ArrayList<>();
+
+        if (count1 > nums.length / 3) {
+            result.add(candidate1);
+        }
+
+        if (count2 > nums.length / 3) {
+            result.add(candidate2);
+        }
+
+        return result;
+    }
+}
+

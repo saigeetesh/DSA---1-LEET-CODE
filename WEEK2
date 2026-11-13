@@ -1,0 +1,287 @@
+1. LC 50 pow(x,n)
+code:
+class Solution {
+    public double myPow(double x, int n) {
+        long power = Math.abs((long) n);
+        double result = 1.0;
+        
+        while (power > 0) {
+            if ((power & 1) == 1) {
+                result *= x;
+            }
+            x *= x;
+            power >>= 1;
+        }
+        
+        // Divide by 1.0 at the end instead of the beginning to preserve precision
+        return n < 0 ? 1.0 / result : result;
+    }
+}
+2.LC 509 fibonacci number
+code:
+class Solution {
+    public int fib(int n) {
+        if (n <= 1) {
+            return n;
+        }
+        
+        int prev2 = 0; // F(0)
+        int prev1 = 1; // F(1)
+        
+        for (int i = 2; i <= n; i++) {
+            int current = prev1 + prev2;
+            prev2 = prev1;
+            prev1 = current;
+        }
+        
+        return prev1;
+    }
+}
+3.LC 70 climbing stairs
+code:
+class Solution {
+    public int climbStairs(int n) {
+        if (n <= 2) {
+            return n;
+        }
+        
+        int prev2 = 1; // Ways to reach step 1
+        int prev1 = 2; // Ways to reach step 2
+        
+        for (int i = 3; i <= n; i++) {
+            int current = prev1 + prev2;
+            prev2 = prev1;
+            prev1 = current;
+        }
+        
+        return prev1;
+    }
+}
+4.LC 231 power of two
+code:
+class Solution {
+    public boolean isPowerOfTwo(int n) {
+        return n > 0 && (n & (n - 1)) == 0;
+    }
+}
+5.LC 191 number of one bits
+code:
+class Solution {
+    public int hammingWeight(int n) {
+        int count = 0;
+        
+        while (n != 0) {
+            n &= (n - 1); // Clears the rightmost set bit
+            count++;
+        }
+        
+        return count;
+    }
+}
+6. LC 1929  concatenation of arrays
+code:
+class Solution {
+    public int[] getConcatenation(int[] nums) {
+        int n = nums.length;
+        int[] ans = new int[2 * n];
+        
+        for (int i = 0; i < n; i++) {
+            ans[i] = nums[i];
+            ans[i + n] = nums[i];
+        }
+        
+        return ans;
+    }
+}
+7. LC 172 factorial trailling zeroes
+code:
+class Solution {
+    public int trailingZeroes(int n) {
+        int count = 0;
+        
+        while (n > 0) {
+            n /= 5;
+            count += n;
+        }
+        
+        return count;
+    }
+}
+8. LC 326 power of three
+code:
+class Solution {
+    public boolean isPowerOfThree(int n) {
+        // 3^19 = 1162261467 is the largest power of 3 that fits in a signed 32-bit int
+        return n > 0 && 1162261467 % n == 0;
+        }
+    }
+9. LC 338 counting bits
+code:
+class Solution {
+    public int[] countBits(int n) {
+        int[] ans = new int[n + 1];
+        
+        for (int i = 1; i <= n; i++) {
+            // i >> 1 removes the last bit; (i & 1) checks if the removed bit was 1
+            ans[i] = ans[i >> 1] + (i & 1);
+        }
+        
+        return ans;
+    }
+}
+10. LC  1137 n-th tribonacii number
+code:
+class Solution {
+    public int tribonacci(int n) {
+        if (n == 0) {
+            return 0;
+        }
+        if (n <= 2) {
+            return 1;
+        }
+        
+        int t0 = 0; // T(0)
+        int t1 = 1; // T(1)
+        int t2 = 1; // T(2)
+        
+        for (int i = 3; i <= n; i++) {
+            int next = t0 + t1 + t2;
+            t0 = t1;
+            t1 = t2;
+            t2 = next;
+        }
+        
+        return t2;
+    }
+}
+11. LC 461 hamming distance
+code:
+class Solution {
+    public int hammingDistance(int x, int y) {
+        int xor = x ^ y;
+        int distance = 0;
+        
+        while (xor != 0) {
+            xor &= (xor - 1); // Clears the rightmost set bit
+            distance++;
+        }
+        
+        return distance;
+    }
+}
+12. LC 29 divide two integers
+code:
+class Solution {
+    public int divide(int dividend, int divisor) {
+        // Overflow case: -2^31 / -1 = 2^31, which exceeds Integer.MAX_VALUE (2^31 - 1)
+        if (dividend == Integer.MIN_VALUE && divisor == -1) {
+            return Integer.MAX_VALUE;
+        }
+        
+        // Determine if the final quotient should be negative
+        boolean isNegative = (dividend < 0) ^ (divisor < 0);
+        
+        // Convert both numbers to negative to avoid overflow when handling Integer.MIN_VALUE (-2^31)
+        int a = dividend > 0 ? -dividend : dividend;
+        int b = divisor > 0 ? -divisor : divisor;
+        
+        int quotient = 0;
+        
+        // Subtract the largest doubled divisor from the dividend repeatedly
+        while (a <= b) {
+            int value = b;
+            int multiple = 1;
+            
+            // Check (value >= Integer.MIN_VALUE >> 1) before doubling to prevent underflow
+            while (value >= -1073741824 && a <= value + value) {
+                value += value;
+                multiple += multiple;
+            }
+            
+            a -= value;
+            quotient += multiple;
+        }
+        
+        return isNegative ? -quotient : quotient;
+    }
+}
+13. LC 372 super pow
+code:
+class Solution {
+    private static final int MOD = 1337;
+
+    public int superPow(int a, int[] b) {
+        int result = 1;
+        a %= MOD; // Reduce base upfront to prevent overflow (a can be up to 2^31 - 1)
+
+        for (int digit : b) {
+            // result = (result^10 * a^digit) % 1337
+            result = (modPow(result, 10) * modPow(a, digit)) % MOD;
+        }
+
+        return result;
+    }
+
+    private int modPow(int base, int exp) {
+        int res = 1;
+        base %= MOD;
+
+        while (exp > 0) {
+            if ((exp & 1) == 1) {
+                res = (res * base) % MOD;
+            }
+            base = (base * base) % MOD;
+            exp >>= 1;
+        }
+
+        return res;
+    }
+}
+14. LC 2550 count collisions of a monkey on a polygon
+code:
+class Solution {
+    private static final int MOD = 1_000_000_007;
+
+    public int monkeyMove(int n) {
+        // Total ways = 2^n; collision-free ways = 2 (all clockwise or all counter-clockwise)
+        long totalWays = modPow(2, n);
+        
+        // Add MOD before taking modulo to prevent negative results when totalWays < 2 (e.g., 0 or 1)
+        return (int) ((totalWays - 2 + MOD) % MOD);
+    }
+
+    private long modPow(long base, int exp) {
+        long result = 1;
+        
+        while (exp > 0) {
+            if ((exp & 1) == 1) {
+                result = (result * base) % MOD;
+            }
+            base = (base * base) % MOD;
+            exp >>= 1;
+        }
+        
+        return result;
+    }
+}
+15. LC 233 number ogf digit one
+code:
+class Solution {
+    public int countDigitOne(int n) {
+        long count = 0;
+        
+        // Use a long for place value (1, 10, 100, ...) to prevent integer overflow when n is up to 10^9
+        for (long i = 1; i <= n; i *= 10) {
+            long divider = i * 10;
+            
+            // Complete cycles of 10^k contribute (n / (i * 10)) * i ones
+            count += (n / divider) * i;
+            
+            // Partial cycle remainder contributes between 0 and i ones
+            long remainder = n % divider;
+            count += Math.min(Math.max(remainder - i + 1, 0L), i);
+        }
+        
+        return (int) count;
+    }
+}

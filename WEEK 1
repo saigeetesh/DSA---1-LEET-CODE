@@ -53,7 +53,7 @@ class Solution {
         
     }
 }
-4. LC 15 maximum subarray
+4. LC 53 maximum subarray
 code:
 class Solution {
     public int maxSubArray(int[] nums) {

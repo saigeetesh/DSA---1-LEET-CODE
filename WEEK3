@@ -1,0 +1,410 @@
+1. LC 344 reverse string
+code:
+class Solution {
+    public void reverseString(char[] s) {
+        int left = 0;
+        int right = s.length - 1;
+        
+        while (left < right) {
+            char temp = s[left];
+            s[left] = s[right];
+            s[right] = temp;
+            
+            left++;
+            right--;
+        }
+    }
+}
+2. LC 125 valid palindrome
+code:
+class Solution {
+    public boolean isPalindrome(String s) {
+        int left = 0;
+        int right = s.length() - 1;
+
+        while (left < right) {
+            char currLeft = s.charAt(left);
+            char currRight = s.charAt(right);
+
+            if (!Character.isLetterOrDigit(currLeft)) {
+                left++;
+            } else if (!Character.isLetterOrDigit(currRight)) {
+                right--;
+            } else {
+                if (Character.toLowerCase(currLeft) != Character.toLowerCase(currRight)) {
+                    return false;
+                }
+                left++;
+                right--;
+            }
+        }
+
+        return true;
+    }
+}
+3. LC jump game lll
+code:
+class Solution {
+    public boolean canReach(int[] arr, int start) {
+        if (start < 0 || start >= arr.length || arr[start] < 0) {
+            return false;
+        }
+        
+        if (arr[start] == 0) {
+            return true;
+        }
+        
+        int jump = arr[start];
+        // Mark as visited by negating the value
+        arr[start] = -arr[start];
+        
+        return canReach(arr, start + jump) || canReach(arr, start - jump);
+    }
+}
+4. LC    find the winner of the circular game
+code:
+class Solution {
+    public int findTheWinner(int n, int k) {
+        int winner = 0; // 0-indexed base case for 1 person
+        
+        for (int i = 2; i <= n; i++) {
+            winner = (winner + k) % i;
+        }
+        
+        // Convert back to 1-indexed result
+        return winner + 1;
+    }
+}
+5. LC 779 k-th symbol in grammar
+code:
+class Solution {
+    public int kthGrammar(int n, int k) {
+        if (n == 1) {
+            return 0;
+        }
+        
+        // Find the parent symbol in the previous row
+        int parent = kthGrammar(n - 1, (k + 1) / 2);
+        
+        // If k is odd, it is the first child (same as parent)
+        // If k is even, it is the second child (flipped from parent)
+        if (k % 2 == 1) {
+            return parent;
+        } else {
+            return 1 - parent;
+        }
+    }
+}
+6. LC 394 decode string
+code:
+class Solution {
+    public String decodeString(String s) {
+        Stack<Integer> countStack = new Stack<>();
+        Stack<StringBuilder> stringStack = new Stack<>();
+        StringBuilder current = new StringBuilder();
+        int k = 0;
+
+        for (char ch : s.toCharArray()) {
+            if (Character.isDigit(ch)) {
+                // Build multi-digit numbers (e.g., "12[a]")
+                k = k * 10 + (ch - '0');
+            } else if (ch == '[') {
+                // Push the current state onto stacks and reset
+                countStack.push(k);
+                stringStack.push(current);
+                current = new StringBuilder();
+                k = 0;
+            } else if (ch == ']') {
+                // Pop the repeat count and previous string, then append
+                int repeatTimes = countStack.pop();
+                StringBuilder decoded = stringStack.pop();
+                for (int i = 0; i < repeatTimes; i++) {
+                    decoded.append(current);
+                }
+                current = decoded;
+            } else {
+                // Regular lowercase letter
+                current.append(ch);
+            }
+        }
+
+        return current.toString();
+    }
+}
+7. LC 241  different ways to add parentheses
+code:
+class Solution {
+    private Map<String, List<Integer>> memo = new HashMap<>();
+
+    public List<Integer> diffWaysToCompute(String expression) {
+        if (memo.containsKey(expression)) {
+            return memo.get(expression);
+        }
+
+        List<Integer> results = new ArrayList<>();
+
+        for (int i = 0; i < expression.length(); i++) {
+            char ch = expression.charAt(i);
+
+            // Split the expression at each operator
+            if (ch == '+' || ch == '-' || ch == '*') {
+                List<Integer> leftResults = diffWaysToCompute(expression.substring(0, i));
+                List<Integer> rightResults = diffWaysToCompute(expression.substring(i + 1));
+
+                // Combine every result from the left with every result from the right
+                for (int left : leftResults) {
+                    for (int right : rightResults) {
+                        if (ch == '+') {
+                            results.add(left + right);
+                        } else if (ch == '-') {
+                            results.add(left - right);
+                        } else if (ch == '*') {
+                            results.add(left * right);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Base case: the expression contains no operators (it's a single number)
+        if (results.isEmpty()) {
+            results.add(Integer.parseInt(expression));
+        }
+
+        memo.put(expression, results);
+        return results;
+    }
+}
+8. LC 342 power of four
+code:
+class Solution {
+    public boolean isPowerOfFour(int n) {
+        return n > 0 && (n & (n - 1)) == 0 && (n & 0x55555555) != 0;
+    }
+}
+9. LC 1922 count good numbers 
+code:
+class Solution {
+    private static final long MOD = 1_000_000_007;
+
+    public int countGoodNumbers(long n) {
+        long evenPositions = (n + 1) / 2;
+        long oddPositions = n / 2;
+
+        long evenChoices = modPow(5, evenPositions);
+        long oddChoices = modPow(4, oddPositions);
+
+        return (int) ((evenChoices * oddChoices) % MOD);
+    }
+
+    private long modPow(long base, long exp) {
+        long result = 1;
+        base %= MOD;
+
+        while (exp > 0) {
+            if ((exp & 1) == 1) {
+                result = (result * base) % MOD;
+            }
+            base = (base * base) % MOD;
+            exp >>= 1;
+        }
+
+        return result;
+    }
+}
+10. LC 397 integer replacement
+code:
+class Solution {
+    public int integerReplacement(int n) {
+        long num = n;
+        int steps = 0;
+
+        while (num != 1) {
+            if ((num & 1) == 0) {
+                // Even: divide by 2
+                num >>= 1;
+            } else if (num == 3 || (num & 3) == 1) {
+                // Odd ending in ...01 (or special case 3): subtract 1
+                num--;
+            } else {
+                // Odd ending in ...11 (and != 3): add 1 to create trailing zeros
+                num++;
+            }
+            steps++;
+        }
+
+        return steps;
+    }
+}
+11. LC 486 predict the winner
+code:
+class Solution {
+    public boolean predictTheWinner(int[] nums) {
+        int n = nums.length;
+        int[] dp = new int[n];
+
+        for (int i = n - 1; i >= 0; i--) {
+            dp[i] = nums[i];
+            for (int j = i + 1; j < n; j++) {
+                dp[j] = Math.max(nums[i] - dp[j], nums[j] - dp[j - 1]);
+            }
+        }
+
+        return dp[n - 1] >= 0;
+    }
+}
+12. LC 1780   check if a number is a sum of  power of three 
+code:
+class Solution {
+    public boolean checkPowersOfThree(int n) {
+        while (n > 0) {
+            if (n % 3 == 2) {
+                return false;
+            }
+            n /= 3;
+        }
+        return true;
+    }
+}
+13.  LC   count number of  maximu bitwise-or subsets
+code:
+class Solution {
+    public int countMaxOrSubsets(int[] nums) {
+        int maxOr = 0;
+        for (int num : nums) {
+            maxOr |= num;
+        }
+        return backtrack(nums, 0, 0, maxOr);
+    }
+
+    private int backtrack(int[] nums, int index, int currentOr, int maxOr) {
+        // Pruning: once currentOr equals maxOr, all remaining elements
+        // can either be included or excluded without changing the OR.
+        if (currentOr == maxOr) {
+            return 1 << (nums.length - index);
+        }
+
+        if (index == nums.length) {
+            return 0;
+        }
+
+        // Include nums[index] + Exclude nums[index]
+        int include = backtrack(nums, index + 1, currentOr | nums[index], maxOr);
+        int exclude = backtrack(nums, index + 1, currentOr, maxOr);
+
+        return include + exclude;
+    }
+}
+14. LC 1106   parsing a boolean expression
+code:
+class Solution {
+    public boolean parseBoolExpr(String expression) {
+        Deque<Character> stack = new ArrayDeque<>();
+
+        for (char ch : expression.toCharArray()) {
+            if (ch == ',' || ch == '(') {
+                continue;
+            }
+
+            if (ch != ')') {
+                stack.push(ch);
+            } else {
+                boolean hasTrue = false;
+                boolean hasFalse = false;
+
+                // Pop all boolean values inside the current parentheses
+                while (stack.peek() == 't' || stack.peek() == 'f') {
+                    char val = stack.pop();
+                    if (val == 't') hasTrue = true;
+                    if (val == 'f') hasFalse = true;
+                }
+
+                // Pop the operator ('!', '&', or '|')
+                char op = stack.pop();
+                char result;
+
+                if (op == '!') {
+                    result = hasTrue ? 'f' : 't';
+                } else if (op == '&') {
+                    result = hasFalse ? 'f' : 't';
+                } else { // op == '|'
+                    result = hasTrue ? 't' : 'f';
+                }
+
+                stack.push(result);
+            }
+        }
+
+        return stack.pop() == 't';
+    }
+}
+15. LC 726 number of atoms
+code:
+import java.util.*;
+
+class Solution {
+    static class AtomMap extends HashMap<String, Integer> {}
+
+    public String countOfAtoms(String formula) {
+        int n = formula.length();
+        Stack<AtomMap> stack = new Stack<>();
+        stack.push(new AtomMap());
+
+        int i = 0;
+        while (i < n) {
+            char ch = formula.charAt(i);
+
+            if (ch == '(') {
+                stack.push(new AtomMap());
+                i++;
+            } else if (ch == ')') {
+                AtomMap top = stack.pop();
+                i++;
+
+                // Parse optional multiplier after ')'
+                int start = i;
+                while (i < n && Character.isDigit(formula.charAt(i))) {
+                    i++;
+                }
+                int multiplier = (start < i) ? Integer.parseInt(formula.substring(start, i)) : 1;
+
+                // Merge popped counts into the parent scope
+                AtomMap parent = stack.peek();
+                for (Map.Entry<String, Integer> entry : top.entrySet()) {
+                    String atom = entry.getKey();
+                    int count = entry.getValue() * multiplier;
+                    parent.put(atom, parent.getOrDefault(atom, 0) + count);
+                }
+            } else {
+                // Parse element name (1 uppercase + 0 or more lowercase)
+                int start = i++;
+                while (i < n && Character.isLowerCase(formula.charAt(i))) {
+                    i++;
+                }
+                String atom = formula.substring(start, i);
+
+                // Parse optional atom count
+                start = i;
+                while (i < n && Character.isDigit(formula.charAt(i))) {
+                    i++;
+                }
+                int count = (start < i) ? Integer.parseInt(formula.substring(start, i)) : 1;
+
+                AtomMap current = stack.peek();
+                current.put(atom, current.getOrDefault(atom, 0) + count);
+            }
+        }
+
+        // Sort atom names alphabetically and build output string
+        TreeMap<String, Integer> sortedAtoms = new TreeMap<>(stack.pop());
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, Integer> entry : sortedAtoms.entrySet()) {
+            result.append(entry.getKey());
+            if (entry.getValue() > 1) {
+                result.append(entry.getValue());
+            }
+        }
+
+        return result.toString();
+    }
+}

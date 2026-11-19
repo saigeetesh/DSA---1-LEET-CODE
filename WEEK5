@@ -1,0 +1,443 @@
+1. LC 303 range sum query-immutable
+code:
+class NumArray {
+    private int[] prefixSum;
+
+    public NumArray(int[] nums) {
+        // Use size n + 1 so prefixSum[0] = 0 acts as a dummy boundary,
+        // avoiding an if (left == 0) check during queries.
+        prefixSum = new int[nums.length + 1];
+        for (int i = 0; i < nums.length; i++) {
+            prefixSum[i + 1] = prefixSum[i] + nums[i];
+        }
+    }
+    
+    public int sumRange(int left, int right) {
+        return prefixSum[right + 1] - prefixSum[left];
+    }
+}
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * int param_1 = obj.sumRange(left,right);
+ */
+2. LC 724 find pivot index
+code:
+class Solution {
+    public int pivotIndex(int[] nums) {
+        int totalSum = 0;
+        for (int num : nums) {
+            totalSum += num;
+        }
+
+        int leftSum = 0;
+        for (int i = 0; i < nums.length; i++) {
+            // The sum strictly to the right of index i is:
+            // totalSum - leftSum - nums[i]
+            if (leftSum == totalSum - leftSum - nums[i]) {
+                return i;
+            }
+            leftSum += nums[i];
+        }
+
+        return -1;
+    }
+}
+3. LC  560 subarray sum equals k
+code:
+import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public int subarraySum(int[] nums, int k) {
+        // Maps a prefix sum to the number of times it has occurred so far
+        Map<Integer, Integer> prefixCount = new HashMap<>();
+        
+        // Base case: a prefix sum of 0 occurs once before processing any elements
+        // (handles subarrays starting from index 0 that sum directly to k)
+        prefixCount.put(0, 1);
+        
+        int count = 0;
+        int currentSum = 0;
+        
+        for (int num : nums) {
+            currentSum += num;
+            
+            // If (currentSum - k) was seen before, every occurrence marks the start
+            // of a contiguous subarray ending here whose elements sum to k.
+            count += prefixCount.getOrDefault(currentSum - k, 0);
+            
+            // Record the current prefix sum frequency
+            prefixCount.put(currentSum, prefixCount.getOrDefault(currentSum, 0) + 1);
+        }
+        
+        return count;
+    }
+}
+4. LC 238 product of array except self
+code:
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] answer = new int[n];
+
+        // Pass 1 (Left to Right): answer[i] holds the product of all elements to the left of i
+        answer[0] = 1;
+        for (int i = 1; i < n; i++) {
+            answer[i] = answer[i - 1] * nums[i - 1];
+        }
+
+        // Pass 2 (Right to Left): multiply answer[i] by the running product of elements to the right of i
+        int rightProduct = 1;
+        for (int i = n - 1; i >= 0; i--) {
+            answer[i] *= rightProduct;
+            rightProduct *= nums[i];
+        }
+
+        return answer;
+    }
+}
+5. LC 1109 corporate flight booking
+code:
+class Solution {
+    public int[] corpFlightBookings(int[][] bookings, int n) {
+        int[] answer = new int[n];
+
+        // Step 1: Mark the start and end boundaries of each booking in O(1)
+        for (int[] booking : bookings) {
+            int first = booking[0] - 1; // Convert 1-indexed flight to 0-indexed
+            int last = booking[1] - 1;
+            int seats = booking[2];
+
+            answer[first] += seats;
+            if (last + 1 < n) {
+                answer[last + 1] -= seats;
+            }
+        }
+
+        // Step 2: Compute the running prefix sum to get total seats per flight
+        for (int i = 1; i < n; i++) {
+            answer[i] += answer[i - 1];
+        }
+
+        return answer;
+    }
+}
+6. LC 304 range sum query 2d- immutable
+code:
+class NumMatrix {
+    private int[][] dp;
+
+    public NumMatrix(int[][] matrix) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+            return;
+        }
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+        
+        // Use (rows + 1) x (cols + 1) with 0-padded top row and left column
+        // to eliminate boundary checks during queries.
+        dp = new int[rows + 1][cols + 1];
+        
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                dp[r + 1][c + 1] = matrix[r][c] 
+                                 + dp[r][c + 1]   // sum above
+                                 + dp[r + 1][c]   // sum to the left
+                                 - dp[r][c];      // subtract overlapping top-left area
+            }
+        }
+    }
+    
+    public int sumRegion(int row1, int col1, int row2, int col2) {
+        return dp[row2 + 1][col2 + 1] 
+             - dp[row1][col2 + 1]     // remove region above
+             - dp[row2 + 1][col1]     // remove region to the left
+             + dp[row1][col1];        // add back top-left overlap subtracted twice
+    }
+}
+
+/**
+ * Your NumMatrix object will be instantiated and called as such:
+ * NumMatrix obj = new NumMatrix(matrix);
+ * int param_1 = obj.sumRegion(row1,col1,row2,col2);
+ */
+7. LC 152    maximum produvt subaaray
+code:
+class Solution {
+    public int maxProduct(int[] nums) {
+        int maxSoFar = nums[0];
+        int minSoFar = nums[0];
+        int result = maxSoFar;
+
+        for (int i = 1; i < nums.length; i++) {
+            int curr = nums[i];
+
+            // Multiplying by a negative number flips max and min,
+            // so save the new max in a temp variable before updating minSoFar.
+            int tempMax = Math.max(curr, Math.max(maxSoFar * curr, minSoFar * curr));
+            minSoFar = Math.min(curr, Math.min(maxSoFar * curr, minSoFar * curr));
+
+            maxSoFar = tempMax;
+            result = Math.max(result, maxSoFar);
+        }
+
+        return result;
+    }
+}
+8. LC 1480  running sum of 1d array
+code:
+class Solution {
+    public int[] runningSum(int[] nums) {
+        for (int i = 1; i < nums.length; i++) {
+            nums[i] += nums[i - 1];
+        }
+        return nums;
+    }
+}
+9. LC 121 best time to buy and sell stock
+code:
+class Solution {
+    public int maxProfit(int[] prices) {
+        int minPrice = Integer.MAX_VALUE;
+        int maxProfit = 0;
+
+        for (int price : prices) {
+            if (price < minPrice) {
+                // Found a lower price to buy at
+                minPrice = price;
+            } else if (price - minPrice > maxProfit) {
+                // Selling today beats our best profit so far
+                maxProfit = price - minPrice;
+            }
+        }
+
+        return maxProfit;
+    }
+}
+10. LC 525 contiguous array
+code:
+import java.util.HashMap;
+import java.util.Map;
+
+class Solution {
+    public int findMaxLength(int[] nums) {
+        // Maps a running sum to the FIRST index where it was encountered
+        Map<Integer, Integer> firstSeen = new HashMap<>();
+        
+        // Base case: a sum of 0 exists before index 0 (at index -1)
+        firstSeen.put(0, -1);
+        
+        int maxLen = 0;
+        int sum = 0;
+        
+        for (int i = 0; i < nums.length; i++) {
+            // Treat 0 as -1 and 1 as +1
+            sum += (nums[i] == 1) ? 1 : -1;
+            
+            if (firstSeen.containsKey(sum)) {
+                // If the same running sum occurred earlier, the subarray between
+                // firstSeen.get(sum) + 1 and i has an equal number of 0s and 1s.
+                maxLen = Math.max(maxLen, i - firstSeen.get(sum));
+            } else {
+                // Only store the earliest index to maximize subarray length
+                firstSeen.put(sum, i);
+            }
+        }
+        
+        return maxLen;
+    }
+}
+11. LC 974 sumarray sums divisible by k
+code:
+class Solution {
+    public int subarraysDivByK(int[] nums, int k) {
+        // Stores the frequency of each remainder (0 to k - 1)
+        int[] remainderCount = new int[k];
+        
+        // Base case: a prefix sum of 0 has remainder 0 once before processing elements
+        remainderCount[0] = 1;
+        
+        int count = 0;
+        int prefixSum = 0;
+        
+        for (int num : nums) {
+            prefixSum += num;
+            
+            // Normalize negative remainders in Java so remainder is always in [0, k - 1]
+            int remainder = ((prefixSum % k) + k) % k;
+            
+            // Every prior prefix with the same remainder forms a valid subarray ending here
+            count += remainderCount[remainder];
+            
+            // Record the occurrence of this remainder
+            remainderCount[remainder]++;
+        }
+        
+        return count;
+    }
+}
+12. LC 1094 car pooling
+code:
+class Solution {
+    public boolean carPooling(int[][] trips, int capacity) {
+        // Constraints specify: 0 <= from_i < to_i <= 1000
+        int[] passengerChanges = new int[1001];
+
+        // Record net passenger change at each pickup and drop-off kilometer
+        for (int[] trip : trips) {
+            int passengers = trip[0];
+            int from = trip[1];
+            int to = trip[2];
+
+            passengerChanges[from] += passengers; // Pick up
+            passengerChanges[to] -= passengers;   // Drop off
+        }
+
+        // Sweep east along the route and verify capacity at every kilometer
+        int currentPassengers = 0;
+        for (int change : passengerChanges) {
+            currentPassengers += change;
+            if (currentPassengers > capacity) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+13. LC 1314 matrix block sum
+code:
+class Solution {
+    public int[][] matrixBlockSum(int[][] mat, int k) {
+        int m = mat.length;
+        int n = mat[0].length;
+        
+        // 1-indexed 2D prefix sum table to avoid boundary checks
+        int[][] prefix = new int[m + 1][n + 1];
+        
+        for (int r = 0; r < m; r++) {
+            for (int c = 0; c < n; c++) {
+                prefix[r + 1][c + 1] = mat[r][c] 
+                                     + prefix[r][c + 1] 
+                                     + prefix[r + 1][c] 
+                                     - prefix[r][c];
+            }
+        }
+        
+        int[][] answer = new int[m][n];
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                // Clamp the window boundaries to stay within [0, m - 1] and [0, n - 1]
+                int r1 = Math.max(0, i - k);
+                int c1 = Math.max(0, j - k);
+                int r2 = Math.min(m - 1, i + k);
+                int c2 = Math.min(n - 1, j + k);
+                
+                // Query the submatrix sum in O(1) using 1-based prefix indices
+                answer[i][j] = prefix[r2 + 1][c2 + 1] 
+                             - prefix[r1][c2 + 1] 
+                             - prefix[r2 + 1][c1] 
+                             + prefix[r1][c1];
+            }
+        }
+        
+        return answer;
+    }
+}
+14. LC 2381 shifting letters 2
+code:
+class Solution {
+    public String shiftingLetters(String s, int[][] shifts) {
+        int n = s.length();
+        // Difference array of size n + 1 to safely mark end + 1 boundaries
+        int[] diff = new int[n + 1];
+
+        // Step 1: Record each range shift in O(1)
+        for (int[] shift : shifts) {
+            int start = shift[0];
+            int end = shift[1];
+            int delta = (shift[2] == 1) ? 1 : -1;
+
+            diff[start] += delta;
+            diff[end + 1] -= delta;
+        }
+
+        // Step 2: Compute running prefix sum and apply wrapped character shifts
+        char[] chars = s.toCharArray();
+        int netShift = 0;
+
+        for (int i = 0; i < n; i++) {
+            netShift += diff[i];
+            
+            // Normalize netShift into [0, 25] to handle large or negative shifts cleanly
+            int effectiveShift = ((netShift % 26) + 26) % 26;
+            chars[i] = (char) ('a' + (chars[i] - 'a' + effectiveShift) % 26);
+        }
+
+        return new String(chars);
+    }
+}
+15.LC 363 max sum of rectangle no larger than k
+code:
+import java.util.TreeSet;
+
+class Solution {
+    public int maxSumSubmatrix(int[][] matrix, int k) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+        int maxSum = Integer.MIN_VALUE;
+
+        // Iterate over all pairs of top and bottom rows (r1..r2)
+        for (int r1 = 0; r1 < rows; r1++) {
+            int[] colSums = new int[cols];
+
+            for (int r2 = r1; r2 < rows; r2++) {
+                // Accumulate column sums between row r1 and row r2
+                for (int c = 0; c < cols; c++) {
+                    colSums[c] += matrix[r2][c];
+                }
+
+                // Optimization: Kadane's algorithm finds the max 1D subarray sum in O(cols).
+                // If even the unrestricted max subarray sum is <= k, we don't need the TreeSet.
+                int kadaneMax = getMaxSubarrayKadane(colSums);
+                if (kadaneMax <= k) {
+                    maxSum = Math.max(maxSum, kadaneMax);
+                    if (maxSum == k) return k;
+                    continue;
+                }
+
+                // Otherwise, use Prefix Sum + TreeSet to find the largest subarray sum <= k
+                TreeSet<Integer> prefixSums = new TreeSet<>();
+                prefixSums.add(0);
+                int currPrefix = 0;
+
+                for (int sum : colSums) {
+                    currPrefix += sum;
+                    // Find the smallest previous prefix sum >= (currPrefix - k)
+                    // so that (currPrefix - prevPrefix) <= k is maximized
+                    Integer target = prefixSums.ceiling(currPrefix - k);
+                    if (target != null) {
+                        maxSum = Math.max(maxSum, currPrefix - target);
+                        if (maxSum == k) return k;
+                    }
+                    prefixSums.add(currPrefix);
+                }
+            }
+        }
+
+        return maxSum;
+    }
+
+    private int getMaxSubarrayKadane(int[] nums) {
+        int maxEndingHere = nums[0];
+        int maxSoFar = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            maxEndingHere = Math.max(nums[i], maxEndingHere + nums[i]);
+            maxSoFar = Math.max(maxSoFar, maxEndingHere);
+        }
+        return maxSoFar;
+    }
+}
+

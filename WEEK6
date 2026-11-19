@@ -1,0 +1,534 @@
+1. LC 26  remove duplicates from sorted array
+code:
+class Solution {
+    public int removeDuplicates(int[] nums) {
+        if (nums.length == 0) {
+            return 0;
+        }
+
+        // 'k' tracks the index where the next unique element should be placed
+        int k = 1;
+
+        for (int i = 1; i < nums.length; i++) {
+            // Since the array is sorted, a new unique value appears whenever
+            // the current element differs from the previous element.
+            if (nums[i] != nums[i - 1]) {
+                nums[k] = nums[i];
+                k++;
+            }
+        }
+
+        return k;
+    }
+}
+2. LC 283 move zeroes
+code:
+class Solution {
+    public void moveZeroes(int[] nums) {
+        int writePos = 0;
+
+        // Step 1: Move all non-zero elements forward in their original order
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != 0) {
+                nums[writePos++] = nums[i];
+            }
+        }
+
+        // Step 2: Fill the remaining trailing positions with 0
+        while (writePos < nums.length) {
+            nums[writePos++] = 0;
+        }
+    }
+}
+3. LC 15 3sum
+code:
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+class Solution {
+    public List<List<Integer>> threeSum(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        
+        // Step 1: Sort the array to enable two-pointer traversal and easy duplicate skipping
+        Arrays.sort(nums);
+        
+        for (int i = 0; i < nums.length - 2; i++) {
+            // Optimization: if the smallest number is > 0, no three numbers can sum to 0
+            if (nums[i] > 0) {
+                break;
+            }
+            
+            // Skip duplicate values for the first element of the triplet
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+            
+            int left = i + 1;
+            int right = nums.length - 1;
+            
+            while (left < right) {
+                int sum = nums[i] + nums[left] + nums[right];
+                
+                if (sum == 0) {
+                    result.add(Arrays.asList(nums[i], nums[left], nums[right]));
+                    
+                    // Move both pointers past any duplicate values
+                    while (left < right && nums[left] == nums[left + 1]) {
+                        left++;
+                    }
+                    while (left < right && nums[right] == nums[right - 1]) {
+                        right--;
+                    }
+                    
+                    left++;
+                    right--;
+                } else if (sum < 0) {
+                    left++;  // Need a larger sum
+                } else {
+                    right--; // Need a smaller sum
+                }
+            }
+        }
+        
+        return result;
+    }
+}
+4. LC 11 container with most water
+code:
+class Solution {
+    public int maxArea(int[] height) {
+        int left = 0;
+        int right = height.length - 1;
+        int maxWater = 0;
+
+        while (left < right) {
+            int width = right - left;
+            int currentHeight = Math.min(height[left], height[right]);
+            maxWater = Math.max(maxWater, width * currentHeight);
+
+            // Always move the pointer at the shorter line inward
+            if (height[left] < height[right]) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+
+        return maxWater;
+    }
+}
+5. LC 75 sort colours
+code:
+class Solution {
+    public void sortColors(int[] nums) {
+        int low = 0;                // Boundary for 0s (red)
+        int mid = 0;                // Current element under inspection
+        int high = nums.length - 1; // Boundary for 2s (blue)
+
+        while (mid <= high) {
+            if (nums[mid] == 0) {
+                swap(nums, low, mid);
+                low++;
+                mid++;
+            } else if (nums[mid] == 1) {
+                mid++;
+            } else { // nums[mid] == 2
+                swap(nums, mid, high);
+                high--;
+                // Do not increment 'mid' here because the swapped element from 'high'
+                // has not been inspected yet.
+            }
+        }
+    }
+
+    private void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+}
+6. LC 48 rotate image
+code:
+class Solution {
+    public void rotate(int[][] matrix) {
+        int n = matrix.length;
+
+        // Step 1: Transpose the matrix in-place (swap matrix[i][j] with matrix[j][i])
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[j][i];
+                matrix[j][i] = temp;
+            }
+        }
+
+        // Step 2: Reverse each row in-place using two pointers
+        for (int i = 0; i < n; i++) {
+            int left = 0;
+            int right = n - 1;
+            while (left < right) {
+                int temp = matrix[i][left];
+                matrix[i][left] = matrix[i][right];
+                matrix[i][right] = temp;
+                left++;
+                right--;
+            }
+        }
+    }
+}
+7. LC 42 trapping rain water
+ code:
+class Solution {
+    public int trap(int[] height) {
+        int left = 0;
+        int right = height.length - 1;
+        int leftMax = 0;
+        int rightMax = 0;
+        int totalWater = 0;
+
+        while (left < right) {
+            if (height[left] < height[right]) {
+                if (height[left] >= leftMax) {
+                    leftMax = height[left];
+                } else {
+                    totalWater += leftMax - height[left];
+                }
+                left++;
+            } else {
+                if (height[right] >= rightMax) {
+                    rightMax = height[right];
+                } else {
+                    totalWater += rightMax - height[right];
+                }
+                right--;
+            }
+        }
+
+        return totalWater;
+    }
+}
+8. LC 27 remove element
+code:
+class Solution {
+    public int removeElement(int[] nums, int val) {
+        int k = 0; // Write pointer for elements not equal to val
+
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != val) {
+                nums[k] = nums[i];
+                k++;
+            }
+        }
+
+        return k;
+    }
+}
+9. LC 977 squares of sorted array
+code:
+class Solution {
+    public int[] sortedSquares(int[] nums) {
+        int n = nums.length;
+        int[] result = new int[n];
+        
+        int left = 0;
+        int right = n - 1;
+        
+        // Fill the result array from the largest square (end) to the smallest (start)
+        for (int i = n - 1; i >= 0; i--) {
+            if (Math.abs(nums[left]) > Math.abs(nums[right])) {
+                result[i] = nums[left] * nums[left];
+                left++;
+            } else {
+                result[i] = nums[right] * nums[right];
+                right--;
+            }
+        }
+        
+        return result;
+    }
+}
+10. LC 16 3sum closest
+code:
+import java.util.Arrays;
+
+class Solution {
+    public int threeSumClosest(int[] nums, int target) {
+        // Step 1: Sort the array to allow two-pointer adjustments
+        Arrays.sort(nums);
+        
+        // Initialize closestSum with the first valid triplet
+        int closestSum = nums[0] + nums[1] + nums[2];
+        
+        for (int i = 0; i < nums.length - 2; i++) {
+            // Optional optimization: skip duplicate first elements
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+            
+            int left = i + 1;
+            int right = nums.length - 1;
+            
+            while (left < right) {
+                int currentSum = nums[i] + nums[left] + nums[right];
+                
+                // Update closestSum if currentSum is strictly closer to target
+                if (Math.abs(target - currentSum) < Math.abs(target - closestSum)) {
+                    closestSum = currentSum;
+                }
+                
+                if (currentSum < target) {
+                    left++;  // Need a larger sum to get closer to target
+                } else if (currentSum > target) {
+                    right--; // Need a smaller sum to get closer to target
+                } else {
+                    // Exact match found (distance is 0)
+                    return currentSum;
+                }
+            }
+        }
+        
+        return closestSum;
+    }
+}
+11. LC 18 4sum
+code:
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+class Solution {
+    public List<List<Integer>> fourSum(int[] nums, int target) {
+        List<List<Integer>> result = new ArrayList<>();
+        int n = nums.length;
+        if (n < 4) {
+            return result;
+        }
+
+        // Step 1: Sort the array to enable two-pointer traversal and duplicate skipping
+        Arrays.sort(nums);
+
+        for (int i = 0; i < n - 3; i++) {
+            // Skip duplicate values for the 1st element
+            if (i > 0 && nums[i] == nums[i - 1]) {
+                continue;
+            }
+            // Pruning: smallest possible sum with nums[i] is already > target
+            if ((long) nums[i] + nums[i + 1] + nums[i + 2] + nums[i + 3] > target) {
+                break;
+            }
+            // Pruning: largest possible sum with nums[i] is still < target
+            if ((long) nums[i] + nums[n - 3] + nums[n - 2] + nums[n - 1] < target) {
+                continue;
+            }
+
+            for (int j = i + 1; j < n - 2; j++) {
+                // Skip duplicate values for the 2nd element
+                if (j > i + 1 && nums[j] == nums[j - 1]) {
+                    continue;
+                }
+                // Pruning for the 2nd element
+                if ((long) nums[i] + nums[j] + nums[j + 1] + nums[j + 2] > target) {
+                    break;
+                }
+                if ((long) nums[i] + nums[j] + nums[n - 2] + nums[n - 1] < target) {
+                    continue;
+                }
+
+                int left = j + 1;
+                int right = n - 1;
+
+                while (left < right) {
+                    // Cast to long to avoid integer overflow (e.g., 4 * 10^9)
+                    long sum = (long) nums[i] + nums[j] + nums[left] + nums[right];
+
+                    if (sum == target) {
+                        result.add(Arrays.asList(nums[i], nums[j], nums[left], nums[right]));
+
+                        // Skip duplicate values for the 3rd and 4th elements
+                        while (left < right && nums[left] == nums[left + 1]) {
+                            left++;
+                        }
+                        while (left < right && nums[right] == nums[right - 1]) {
+                            right--;
+                        }
+
+                        left++;
+                        right--;
+                    } else if (sum < target) {
+                        left++;
+                    } else {
+                        right--;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+}
+12. LC 54   spiral matrix
+code:
+import java.util.ArrayList;
+import java.util.List;
+
+class Solution {
+    public List<Integer> spiralOrder(int[][] matrix) {
+        List<Integer> result = new ArrayList<>();
+        if (matrix == null || matrix.length == 0) {
+            return result;
+        }
+
+        int top = 0;
+        int bottom = matrix.length - 1;
+        int left = 0;
+        int right = matrix[0].length - 1;
+
+        while (top <= bottom && left <= right) {
+            // 1. Traverse left to right along the top boundary
+            for (int col = left; col <= right; col++) {
+                result.add(matrix[top][col]);
+            }
+            top++;
+
+            // 2. Traverse top to bottom along the right boundary
+            for (int row = top; row <= bottom; row++) {
+                result.add(matrix[row][right]);
+            }
+            right--;
+
+            // 3. Traverse right to left along the bottom boundary (if rows remain)
+            if (top <= bottom) {
+                for (int col = right; col >= left; col--) {
+                    result.add(matrix[bottom][col]);
+                }
+                bottom--;
+            }
+
+            // 4. Traverse bottom to top along the left boundary (if columns remain)
+            if (left <= right) {
+                for (int row = bottom; row >= top; row--) {
+                    result.add(matrix[row][left]);
+                }
+                left++;
+            }
+        }
+
+        return result;
+    }
+}
+13. LC 73 set matrix zeroes
+code:
+class Solution {
+    public void setZeroes(int[][] matrix) {
+        int m = matrix.length;
+        int n = matrix[0].length;
+
+        boolean firstRowHasZero = false;
+        boolean firstColHasZero = false;
+
+        // Step 1: Check if the first column originally contains any 0
+        for (int r = 0; r < m; r++) {
+            if (matrix[r][0] == 0) {
+                firstColHasZero = true;
+                break;
+            }
+        }
+
+        // Step 2: Check if the first row originally contains any 0
+        for (int c = 0; c < n; c++) {
+            if (matrix[0][c] == 0) {
+                firstRowHasZero = true;
+                break;
+            }
+        }
+
+        // Step 3: Use first row and first column as markers for the rest of the matrix
+        for (int r = 1; r < m; r++) {
+            for (int c = 1; c < n; c++) {
+                if (matrix[r][c] == 0) {
+                    matrix[r][0] = 0;
+                    matrix[0][c] = 0;
+                }
+            }
+        }
+
+        // Step 4: Zero out cells in the inner matrix based on the markers
+        for (int r = 1; r < m; r++) {
+            for (int c = 1; c < n; c++) {
+                if (matrix[r][0] == 0 || matrix[0][c] == 0) {
+                    matrix[r][c] = 0;
+                }
+            }
+        }
+
+        // Step 5: Zero out the first column and first row if needed
+        if (firstColHasZero) {
+            for (int r = 0; r < m; r++) {
+                matrix[r][0] = 0;
+            }
+        }
+
+        if (firstRowHasZero) {
+            for (int c = 0; c < n; c++) {
+                matrix[0][c] = 0;
+            }
+        }
+    }
+}
+14. LC 55 jump game
+code:
+class Solution {
+    public boolean canJump(int[] nums) {
+        int maxReach = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+            // If the current index is beyond the farthest index we can reach, we're stuck
+            if (i > maxReach) {
+                return false;
+            }
+
+            // Update the farthest reachable index from position i
+            maxReach = Math.max(maxReach, i + nums[i]);
+
+            // Early exit once we know the last index is reachable
+            if (maxReach >= nums.length - 1) {
+                return true;
+            }
+        }
+
+        return true;
+    }
+}
+15. LC 135 candy
+code:
+import java.util.Arrays;
+
+class Solution {
+    public int candy(int[] ratings) {
+        int n = ratings.length;
+        int[] candies = new int[n];
+        
+        // Every child must receive at least 1 candy
+        Arrays.fill(candies, 1);
+
+        // Pass 1 (Left to Right): Ensure higher-rated children get more than their left neighbor
+        for (int i = 1; i < n; i++) {
+            if (ratings[i] > ratings[i - 1]) {
+                candies[i] = candies[i - 1] + 1;
+            }
+        }
+
+        // Pass 2 (Right to Left): Ensure higher-rated children get more than their right neighbor
+        // while keeping the larger requirement from Pass 1
+        int totalCandies = candies[n - 1];
+        for (int i = n - 2; i >= 0; i--) {
+            if (ratings[i] > ratings[i + 1]) {
+                candies[i] = Math.max(candies[i], candies[i + 1] + 1);
+            }
+            totalCandies += candies[i];
+        }
+
+        return totalCandies;
+    }
+}

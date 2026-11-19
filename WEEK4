@@ -1,0 +1,570 @@
+1. LC 78 subsets
+code:
+class Solution {
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        backtrack(result, new ArrayList<>(), nums, 0);
+        return result;
+    }
+
+    private void backtrack(List<List<Integer>> result, List<Integer> tempList, int[] nums, int start) {
+        // Add a copy of the current subset to the result list
+        result.add(new ArrayList<>(tempList));
+        
+        for (int i = start; i < nums.length; i++) {
+            // Include nums[i]
+            tempList.add(nums[i]);
+            // Move on to the next element
+            backtrack(result, tempList, nums, i + 1);
+            // Backtrack: remove nums[i] before the next iteration
+            tempList.remove(tempList.size() - 1);
+        }
+    }
+}
+2. LC 46 permutations
+code:
+lass Solution {
+    public List<List<Integer>> permute(int[] nums) {
+        List<List<Integer>> result = new ArrayList<>();
+        backtrack(result, new ArrayList<>(), nums, new boolean[nums.length]);
+        return result;
+    }
+
+    private void backtrack(List<List<Integer>> result, List<Integer> current, int[] nums, boolean[] used) {
+        // Base case: if the current permutation has all elements, add a copy to the result
+        if (current.size() == nums.length) {
+            result.add(new ArrayList<>(current));
+            return;
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            // Skip elements already in the current permutation
+            if (used[i]) continue;
+
+            // Choose the element
+            used[i] = true;
+            current.add(nums[i]);
+
+            // Explore further
+            backtrack(result, current, nums, used);
+
+            // Undo the choice (backtrack)
+            current.remove(current.size() - 1);
+            used[i] = false;
+        }
+    }
+}
+3. LC 39 combination sum
+code:
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+class Solution {
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        List<List<Integer>> result = new ArrayList<>();
+        // Sorting enables early pruning when a candidate exceeds the remaining target
+        Arrays.sort(candidates);
+        backtrack(result, new ArrayList<>(), candidates, target, 0);
+        return result;
+    }
+
+    private void backtrack(List<List<Integer>> result, List<Integer> current, int[] candidates, int remain, int start) {
+        // Base case: exact target reached
+        if (remain == 0) {
+            result.add(new ArrayList<>(current));
+            return;
+        }
+
+        for (int i = start; i < candidates.length; i++) {
+            // Pruning: since the array is sorted, no subsequent candidates will fit
+            if (candidates[i] > remain) {
+                break;
+            }
+
+            // Choose the candidate
+            current.add(candidates[i]);
+
+            // Explore further: pass 'i' (not 'i + 1') because the same number can be reused
+            backtrack(result, current, candidates, remain - candidates[i], i);
+
+            // Undo the choice (backtrack)
+            current.remove(current.size() - 1);
+        }
+    }
+}
+4. LC 17 letter combination of a phone number
+code:
+import java.util.ArrayList;
+import java.util.List;
+
+class Solution {
+    // Keypad mapping where index corresponds to the digit (0 and 1 are empty)
+    private static final String[] KEYPAD = {
+        "",     // 0
+        "",     // 1
+        "abc",  // 2
+        "def",  // 3
+        "ghi",  // 4
+        "jkl",  // 5
+        "mno",  // 6
+        "pqrs", // 7
+        "tuv",  // 8
+        "wxyz"  // 9
+    };
+
+    public List<String> letterCombinations(String digits) {
+        List<String> result = new ArrayList<>();
+        if (digits == null || digits.isEmpty()) {
+            return result;
+        }
+        backtrack(result, new StringBuilder(), digits, 0);
+        return result;
+    }
+
+    private void backtrack(List<String> result, StringBuilder current, String digits, int index) {
+        // Base case: built a combination matching the length of digits
+        if (index == digits.length()) {
+            result.add(current.toString());
+            return;
+        }
+
+        // Get the letters mapped to the current digit
+        String letters = KEYPAD[digits.charAt(index) - '0'];
+
+        for (char letter : letters.toCharArray()) {
+            // Choose the letter
+            current.append(letter);
+
+            // Explore the next digit
+            backtrack(result, current, digits, index + 1);
+
+            // Undo the choice (backtrack)
+            current.deleteCharAt(current.length() - 1);
+        }
+    }
+}
+5. LC 22 generate parentheses
+code:
+import java.util.ArrayList;
+import java.util.List;
+
+class Solution {
+    public List<String> generateParenthesis(int n) {
+        List<String> results = new ArrayList<>();
+        backtrack(results, new StringBuilder(), 0, 0, n);
+        return results;
+    }
+
+    private void backtrack(List<String> results, StringBuilder current, int open, int close, int max) {
+        // Base case: string length reaches 2 * n
+        if (current.length() == max * 2) {
+            results.add(current.toString());
+            return;
+        }
+
+        // Add '(' if we haven't reached the limit of 'n' opening brackets
+        if (open < max) {
+            current.append('(');
+            backtrack(results, current, open + 1, close, max);
+            current.deleteCharAt(current.length() - 1); // backtrack
+        }
+
+        // Add ')' only if there is an unmatched '(' available
+        if (close < open) {
+            current.append(')');
+            backtrack(results, current, open, close + 1, max);
+            current.deleteCharAt(current.length() - 1); // backtrack
+        }
+    }
+}
+6. LC 198 house robber
+code:
+class Solution {
+    public int rob(int[] nums) {
+        if (nums == null || nums.length == 0) return 0;
+        
+        int prev1 = 0; // Max money robbed up to the previous house (i - 1)
+        int prev2 = 0; // Max money robbed up to two houses ago (i - 2)
+        
+        for (int num : nums) {
+            // Either rob the current house (num + prev2) or skip it (prev1)
+            int current = Math.max(prev1, prev2 + num);
+            prev2 = prev1;
+            prev1 = current;
+        }
+        
+        return prev1;
+    }
+}
+7. LC n-queens
+code:
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+class Solution {
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> results = new ArrayList<>();
+        char[][] board = new char[n][n];
+        for (char[] row : board) {
+            Arrays.fill(row, '.');
+        }
+        
+        // Track occupied columns and diagonals in O(1)
+        boolean[] cols = new boolean[n];
+        boolean[] diag1 = new boolean[2 * n]; // row - col + n
+        boolean[] diag2 = new boolean[2 * n]; // row + col
+        
+        backtrack(0, n, board, results, cols, diag1, diag2);
+        return results;
+    }
+
+    private void backtrack(int row, int n, char[][] board, List<List<String>> results,
+                           boolean[] cols, boolean[] diag1, boolean[] diag2) {
+        if (row == n) {
+            results.add(construct(board));
+            return;
+        }
+
+        for (int col = 0; col < n; col++) {
+            int d1 = row - col + n;
+            int d2 = row + col;
+            
+            // Skip if column or either diagonal is already under attack
+            if (cols[col] || diag1[d1] || diag2[d2]) continue;
+
+            // Place queen
+            board[row][col] = 'Q';
+            cols[col] = diag1[d1] = diag2[d2] = true;
+
+            backtrack(row + 1, n, board, results, cols, diag1, diag2);
+
+            // Backtrack (remove queen)
+            board[row][col] = '.';
+            cols[col] = diag1[d1] = diag2[d2] = false;
+        }
+    }
+
+    private List<String> construct(char[][] board) {
+        List<String> path = new ArrayList<>();
+        for (char[] row : board) {
+            path.add(new String(row));
+        }
+        return path;
+    }
+}
+8. LC 90 subsets 2
+code:
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+class Solution {
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        List<List<Integer>> results = new ArrayList<>();
+        // Sort first so duplicate elements are adjacent
+        Arrays.sort(nums);
+        backtrack(0, nums, new ArrayList<>(), results);
+        return results;
+    }
+
+    private void backtrack(int start, int[] nums, List<Integer> current, List<List<Integer>> results) {
+        // Every recursive state represents a valid unique subset
+        results.add(new ArrayList<>(current));
+
+        for (int i = start; i < nums.length; i++) {
+            // Skip duplicate elements at the same recursion depth
+            if (i > start && nums[i] == nums[i - 1]) continue;
+
+            current.add(nums[i]);
+            backtrack(i + 1, nums, current, results);
+            current.remove(current.size() - 1); // backtrack
+        }
+    }
+}
+9. LC 47 permutations 2
+code:
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+class Solution {
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        List<List<Integer>> results = new ArrayList<>();
+        // Sort so identical numbers are adjacent
+        Arrays.sort(nums);
+        boolean[] used = new boolean[nums.length];
+        backtrack(nums, used, new ArrayList<>(), results);
+        return results;
+    }
+
+    private void backtrack(int[] nums, boolean[] used, List<Integer> current, List<List<Integer>> results) {
+        if (current.size() == nums.length) {
+            results.add(new ArrayList<>(current));
+            return;
+        }
+
+        for (int i = 0; i < nums.length; i++) {
+            // Skip elements already in the current permutation
+            if (used[i]) continue;
+
+            // Skip duplicate elements at the same recursion depth:
+            // If nums[i] equals nums[i - 1] and nums[i - 1] wasn't used in this branch,
+            // picking nums[i] would generate an identical permutation branch.
+            if (i > 0 && nums[i] == nums[i - 1] && !used[i - 1]) continue;
+
+            used[i] = true;
+            current.add(nums[i]);
+
+            backtrack(nums, used, current, results);
+
+            // Backtrack
+            used[i] = false;
+            current.remove(current.size() - 1);
+        }
+    }
+}
+10. LC 40 combination sum 2
+code:
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+class Solution {
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        List<List<Integer>> results = new ArrayList<>();
+        // Sort first so duplicates are adjacent and we can prune early
+        Arrays.sort(candidates);
+        backtrack(0, target, candidates, new ArrayList<>(), results);
+        return results;
+    }
+
+    private void backtrack(int start, int remain, int[] candidates, List<Integer> current, List<List<Integer>> results) {
+        if (remain == 0) {
+            results.add(new ArrayList<>(current));
+            return;
+        }
+
+        for (int i = start; i < candidates.length; i++) {
+            // Since the array is sorted, no subsequent number can fit if this one exceeds remain
+            if (candidates[i] > remain) break;
+
+            // Skip duplicate elements at the same recursion depth
+            if (i > start && candidates[i] == candidates[i - 1]) continue;
+
+            current.add(candidates[i]);
+            // Pass i + 1 because each number can only be used once
+            backtrack(i + 1, remain - candidates[i], candidates, current, results);
+            current.remove(current.size() - 1); // backtrack
+        }
+    }
+}
+11. LC 131 palindrome partitioining
+code:
+import java.util.ArrayList;
+import java.util.List;
+
+class Solution {
+    public List<List<String>> partition(String s) {
+        List<List<String>> results = new ArrayList<>();
+        backtrack(0, s, new ArrayList<>(), results);
+        return results;
+    }
+
+    private void backtrack(int start, String s, List<String> current, List<List<String>> results) {
+        // Base case: we've partitioned the entire string
+        if (start == s.length()) {
+            results.add(new ArrayList<>(current));
+            return;
+        }
+
+        for (int end = start; end < s.length(); end++) {
+            // Only recurse if the substring s[start..end] is a palindrome
+            if (isPalindrome(s, start, end)) {
+                current.add(s.substring(start, end + 1));
+                backtrack(end + 1, s, current, results);
+                current.remove(current.size() - 1); // backtrack
+            }
+        }
+    }
+
+    private boolean isPalindrome(String s, int left, int right) {
+        while (left < right) {
+            if (s.charAt(left++) != s.charAt(right--)) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+12. LC 79 word search
+code:
+class Solution {
+    public boolean exist(char[][] board, String word) {
+        int rows = board.length;
+        int cols = board[0].length;
+
+        // Optional pruning: if the last character appears fewer times on the board
+        // than the first character, reverse the word to prune dead ends much faster.
+        if (countChar(board, word.charAt(0)) > countChar(board, word.charAt(word.length() - 1))) {
+            word = new StringBuilder(word).reverse().toString();
+        }
+
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                if (dfs(board, word, r, c, 0)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean dfs(char[][] board, String word, int r, int c, int index) {
+        // Base case: all characters matched
+        if (index == word.length()) {
+            return true;
+        }
+
+        // Boundary and character mismatch checks
+        if (r < 0 || r >= board.length || c < 0 || c >= board[0].length 
+                || board[r][c] != word.charAt(index)) {
+            return false;
+        }
+
+        // Mark cell as visited in-place
+        char temp = board[r][c];
+        board[r][c] = '#';
+
+        // Explore all 4 adjacent directions
+        boolean found = dfs(board, word, r + 1, c, index + 1)
+                     || dfs(board, word, r - 1, c, index + 1)
+                     || dfs(board, word, r, c + 1, index + 1)
+                     || dfs(board, word, r, c - 1, index + 1);
+
+        // Backtrack: restore the original character
+        board[r][c] = temp;
+
+        return found;
+    }
+
+    private int countChar(char[][] board, char target) {
+        int count = 0;
+        for (char[] row : board) {
+            for (char cell : row) {
+                if (cell == target) count++;
+            }
+        }
+        return count;
+    }
+}
+13. LC 322 coin change
+code:
+import java.util.Arrays;
+
+class Solution {
+    public int coinChange(int[] coins, int amount) {
+        // Initialize DP array with a value larger than any possible coin count (amount + 1)
+        int max = amount + 1;
+        int[] dp = new int[amount + 1];
+        Arrays.fill(dp, max);
+        
+        // Base case: 0 coins are needed to make amount 0
+        dp[0] = 0;
+
+        // Compute the minimum coins needed for each sub-amount from 1 to amount
+        for (int i = 1; i <= amount; i++) {
+            for (int coin : coins) {
+                if (coin <= i) {
+                    dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+                }
+            }
+        }
+
+        // If dp[amount] wasn't updated from 'max', the amount cannot be formed
+        return dp[amount] > amount ? -1 : dp[amount];
+    }
+}
+14. LC unique path
+code:
+import java.util.Arrays;
+
+class Solution {
+    public int uniquePaths(int m, int n) {
+        // 1D array representing the number of ways to reach each column in the current row
+        int[] dp = new int[n];
+        
+        // Base case: There is only 1 way to reach any cell in the first row (keep moving right)
+        Arrays.fill(dp, 1);
+
+        // Update the DP array row by row starting from row 1
+        for (int r = 1; r < m; r++) {
+            for (int c = 1; c < n; c++) {
+                // dp[c] (before update) is the cell directly above
+                // dp[c - 1] (already updated) is the cell to the left
+                dp[c] += dp[c - 1];
+            }
+        }
+
+        return dp[n - 1];
+    }
+}
+15. LC 37 sudoku solver
+code:
+class Solution {
+    private boolean[][] rows = new boolean[9][10];
+    private boolean[][] cols = new boolean[9][10];
+    private boolean[][] boxes = new boolean[9][10];
+
+    public void solveSudoku(char[][] board) {
+        // Pre-populate the constraint arrays with initial board digits
+        for (int r = 0; r < 9; r++) {
+            for (int c = 0; c < 9; c++) {
+                if (board[r][c] != '.') {
+                    int num = board[r][c] - '0';
+                    int boxIdx = (r / 3) * 3 + (c / 3);
+                    rows[r][num] = cols[c][num] = boxes[boxIdx][num] = true;
+                }
+            }
+        }
+        backtrack(board, 0, 0);
+    }
+
+    private boolean backtrack(char[][] board, int r, int c) {
+        // Move to the next row once we reach the end of the current row
+        if (c == 9) {
+            return backtrack(board, r + 1, 0);
+        }
+        // Base case: all rows 0..8 are filled
+        if (r == 9) {
+            return true;
+        }
+        // Skip pre-filled cells
+        if (board[r][c] != '.') {
+            return backtrack(board, r, c + 1);
+        }
+
+        int boxIdx = (r / 3) * 3 + (c / 3);
+
+        for (int num = 1; num <= 9; num++) {
+            // Check if 'num' is valid in the current row, column, and 3x3 box
+            if (!rows[r][num] && !cols[c][num] && !boxes[boxIdx][num]) {
+                // Place digit
+                board[r][c] = (char) (num + '0');
+                rows[r][num] = cols[c][num] = boxes[boxIdx][num] = true;
+
+                // Recurse to the next cell
+                if (backtrack(board, r, c + 1)) {
+                    return true;
+                }
+
+                // Backtrack: undo placement
+                board[r][c] = '.';
+                rows[r][num] = cols[c][num] = boxes[boxIdx][num] = false;
+            }
+        }
+
+        return false;
+    }
+}

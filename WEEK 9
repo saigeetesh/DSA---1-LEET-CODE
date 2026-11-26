@@ -1,0 +1,647 @@
+1. LC 875 koko eating bananas
+code:
+class Solution {
+    public int minEatingSpeed(int[] piles, int h) {
+        int left = 1;
+        int right = 0;
+
+        for (int pile : piles) {
+            right = Math.max(right, pile);
+        }
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (canFinish(piles, h, mid)) {
+                // Speed mid works; try to eat even slower
+                right = mid;
+            } else {
+                // Speed mid is too slow; need a faster speed
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean canFinish(int[] piles, int h, int speed) {
+        long hoursNeeded = 0;
+
+        for (int pile : piles) {
+            hoursNeeded += (pile + speed - 1L) / speed;
+            if (hoursNeeded > h) {
+                return false;
+            }
+        }
+
+        return hoursNeeded <= h;
+    }
+}
+2. LC 1011 capacity to ship packages within d days
+code:
+class Solution {
+    public int shipWithinDays(int[] weights, int days) {
+        int left = 0;
+        int right = 0;
+
+        for (int weight : weights) {
+            left = Math.max(left, weight);
+            right += weight;
+        }
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (canShip(weights, days, mid)) {
+                // Capacity mid works; look for a smaller valid capacity
+                right = mid;
+            } else {
+                // Capacity mid is too small; need a larger capacity
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean canShip(int[] weights, int days, int capacity) {
+        int daysNeeded = 1;
+        int currentLoad = 0;
+
+        for (int weight : weights) {
+            if (currentLoad + weight > capacity) {
+                daysNeeded++;
+                currentLoad = weight;
+                if (daysNeeded > days) {
+                    return false;
+                }
+            } else {
+                currentLoad += weight;
+            }
+        }
+
+        return true;
+    }
+}
+3. LC 1283 find the smallest divisior given a threshold
+code:
+class Solution {
+    public int smallestDivisor(int[] nums, int threshold) {
+        int left = 1;
+        int right = 0;
+
+        for (int num : nums) {
+            right = Math.max(right, num);
+        }
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (divisionSum(nums, mid) <= threshold) {
+                // Divisor mid works; search for a smaller valid divisor
+                right = mid;
+            } else {
+                // Sum is too high; increase divisor to reduce quotients
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+
+    private int divisionSum(int[] nums, int divisor) {
+        int sum = 0;
+
+        for (int num : nums) {
+            sum += (num + divisor - 1) / divisor;
+        }
+
+        return sum;
+    }
+}
+4. LC 1482 minimum number of days to make m boquets
+code:
+class Solution {
+    public int minDays(int[] bloomDay, int m, int k) {
+        int n = bloomDay.length;
+        // Each bouquet takes k flowers; prevent m * k int overflow
+        if ((long) m * k > n) {
+            return -1;
+        }
+
+        int left = Integer.MAX_VALUE;
+        int right = Integer.MIN_VALUE;
+
+        for (int day : bloomDay) {
+            left = Math.min(left, day);
+            right = Math.max(right, day);
+        }
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (canMakeBouquets(bloomDay, m, k, mid)) {
+                // Can make m bouquets by day mid; look for an earlier day
+                right = mid;
+            } else {
+                // Not enough bouquets by day mid; need to wait longer
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean canMakeBouquets(int[] bloomDay, int m, int k, int day) {
+        int bouquets = 0;
+        int adjacentBloomed = 0;
+
+        for (int bDay : bloomDay) {
+            if (bDay <= day) {
+                adjacentBloomed++;
+                if (adjacentBloomed == k) {
+                    bouquets++;
+                    adjacentBloomed = 0;
+                    if (bouquets >= m) {
+                        return true;
+                    }
+                }
+            } else {
+                // Unbloomed flower breaks adjacency
+                adjacentBloomed = 0;
+            }
+        }
+
+        return bouquets >= m;
+    }
+}
+5. Lc 2187 minimum time to complete trips
+code:
+class Solution {
+    public long minimumTime(int[] time, int totalTrips) {
+        int minBusTime = Integer.MAX_VALUE;
+        for (int t : time) {
+            minBusTime = Math.min(minBusTime, t);
+        }
+
+        long left = 1L;
+        long right = (long) minBusTime * totalTrips;
+
+        while (left < right) {
+            long mid = left + (right - left) / 2;
+
+            if (canComplete(time, totalTrips, mid)) {
+                // Enough trips completed by time mid; try an earlier time
+                right = mid;
+            } else {
+                // Not enough trips by time mid; need more time
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean canComplete(int[] time, int totalTrips, long givenTime) {
+        long tripsCompleted = 0L;
+
+        for (int t : time) {
+            tripsCompleted += givenTime / t;
+            if (tripsCompleted >= totalTrips) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+6. LC 410 split array largest sum
+code:
+class Solution {
+    public int splitArray(int[] nums, int k) {
+        long left = 0;
+        long right = 0;
+
+        for (int num : nums) {
+            left = Math.max(left, num);
+            right += num;
+        }
+
+        while (left < right) {
+            long mid = left + (right - left) / 2;
+
+            if (canSplit(nums, k, mid)) {
+                // Largest sum mid is achievable; try to minimize it further
+                right = mid;
+            } else {
+                // Largest sum mid is too tight; increase the cap
+                left = mid + 1;
+            }
+        }
+
+        return (int) left;
+    }
+
+    private boolean canSplit(int[] nums, int k, long maxAllowedSum) {
+        int subarraysUsed = 1;
+        long currentSum = 0;
+
+        for (int num : nums) {
+            if (currentSum + num > maxAllowedSum) {
+                subarraysUsed++;
+                currentSum = num;
+                if (subarraysUsed > k) {
+                    return false;
+                }
+            } else {
+                currentSum += num;
+            }
+        }
+
+        return true;
+    }
+}
+7. LC 4 median of two sorted arrays
+code:
+class Solution {
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+        // Always binary search the smaller array to keep partition indices valid
+        if (nums1.length > nums2.length) {
+            return findMedianSortedArrays(nums2, nums1);
+        }
+
+        int m = nums1.length;
+        int n = nums2.length;
+        int totalLeft = (m + n + 1) / 2;
+
+        int left = 0;
+        int right = m;
+
+        while (left <= right) {
+            int cut1 = left + (right - left) / 2;
+            int cut2 = totalLeft - cut1;
+
+            int left1 = (cut1 == 0) ? Integer.MIN_VALUE : nums1[cut1 - 1];
+            int right1 = (cut1 == m) ? Integer.MAX_VALUE : nums1[cut1];
+            int left2 = (cut2 == 0) ? Integer.MIN_VALUE : nums2[cut2 - 1];
+            int right2 = (cut2 == n) ? Integer.MAX_VALUE : nums2[cut2];
+
+            if (left1 <= right2 && left2 <= right1) {
+                // Valid partition found
+                if ((m + n) % 2 == 1) {
+                    return Math.max(left1, left2);
+                } else {
+                    return (Math.max(left1, left2) + Math.min(right1, right2)) / 2.0;
+                }
+            } else if (left1 > right2) {
+                // Too many elements taken from nums1; move cut1 left
+                right = cut1 - 1;
+            } else {
+                // Too few elements taken from nums1; move cut1 right
+                left = cut1 + 1;
+            }
+        }
+
+        return 0.0;
+    }
+}
+8. LC 1552  magnetic force betweeen two balls
+code:
+import java.util.Arrays;
+
+class Solution {
+    public int maxDistance(int[] position, int m) {
+        Arrays.sort(position);
+
+        int n = position.length;
+        int left = 1;
+        int right = position[n - 1] - position[0];
+        int ans = 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            if (canPlaceBalls(position, m, mid)) {
+                // Distance mid is achievable; try for a larger minimum force
+                ans = mid;
+                left = mid + 1;
+            } else {
+                // Distance mid is too large; reduce the target force
+                right = mid - 1;
+            }
+        }
+
+        return ans;
+    }
+
+    private boolean canPlaceBalls(int[] position, int m, int minForce) {
+        int ballsPlaced = 1;
+        int lastPos = position[0];
+
+        for (int i = 1; i < position.length; i++) {
+            if (position[i] - lastPos >= minForce) {
+                ballsPlaced++;
+                lastPos = position[i];
+                if (ballsPlaced == m) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+}
+9. LC 2064 minimized maximum of products distributed to any store
+code:
+class Solution {
+    public int minimizedMaximum(int n, int[] quantities) {
+        int left = 1;
+        int right = 0;
+
+        for (int q : quantities) {
+            right = Math.max(right, q);
+        }
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (canDistribute(n, quantities, mid)) {
+                // Maximum load mid works; try to minimize it further
+                right = mid;
+            } else {
+                // Need more than n stores at cap mid; increase the cap
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean canDistribute(int n, int[] quantities, int maxPerStore) {
+        long storesNeeded = 0;
+
+        for (int q : quantities) {
+            storesNeeded += (q + maxPerStore - 1L) / maxPerStore;
+            if (storesNeeded > n) {
+                return false;
+            }
+        }
+
+        return storesNeeded <= n;
+    }
+}
+10. LC 1760 minimum limit of balls in a bag
+code:
+class Solution {
+    public int minimumSize(int[] nums, int maxOperations) {
+        int left = 1;
+        int right = 0;
+
+        for (int balls : nums) {
+            right = Math.max(right, balls);
+        }
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+
+            if (canAchievePenalty(nums, maxOperations, mid)) {
+                // Penalty mid is achievable; try to lower the max bag size
+                right = mid;
+            } else {
+                // Too many splits needed at penalty mid; allow larger bags
+                left = mid + 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean canAchievePenalty(int[] nums, int maxOperations, int maxBagSize) {
+        long operationsNeeded = 0;
+
+        for (int balls : nums) {
+            if (balls > maxBagSize) {
+                // Split into ceil(balls / maxBagSize) bags -> (balls - 1) / maxBagSize splits
+                operationsNeeded += (balls - 1) / maxBagSize;
+                if (operationsNeeded > maxOperations) {
+                    return false;
+                }
+            }
+        }
+
+        return operationsNeeded <= maxOperations;
+    }
+}
+11. LC 2226 maximum candies allocated to k children
+code:
+class Solution {
+    public int maximumCandies(int[] candies, long k) {
+        int maxPile = 0;
+        for (int pile : candies) {
+            maxPile = Math.max(maxPile, pile);
+        }
+
+        int left = 0;
+        int right = maxPile;
+
+        while (left < right) {
+            // Bias mid upward so two-element ranges [a, a+1] test a+1 first
+            int mid = left + (right - left + 1) / 2;
+
+            if (canAllocate(candies, k, mid)) {
+                // Giving mid candies per child works; try for more
+                left = mid;
+            } else {
+                // Not enough sub-piles of size mid; reduce candies per child
+                right = mid - 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean canAllocate(int[] candies, long k, int perChild) {
+        if (perChild == 0) {
+            return true;
+        }
+
+        long childrenServed = 0L;
+        for (int pile : candies) {
+            childrenServed += pile / perChild;
+            if (childrenServed >= k) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+12.LC 1870 minimum speed to arrive on time
+code:
+class Solution {
+    private static final int MAX_SPEED = 10_000_000;
+
+    public int minSpeedOnTime(int[] dist, double hour) {
+        int n = dist.length;
+        // Each of the first (n - 1) trains takes at least 1 full hour after waiting
+        if (hour <= n - 1) {
+            return -1;
+        }
+
+        int left = 1;
+        int right = MAX_SPEED;
+        int ans = -1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            if (canArriveOnTime(dist, hour, mid)) {
+                // Speed mid works; try a slower speed
+                ans = mid;
+                right = mid - 1;
+            } else {
+                // Too slow to make hour; try a faster speed
+                left = mid + 1;
+            }
+        }
+
+        return ans;
+    }
+
+    private boolean canArriveOnTime(int[] dist, double hour, int speed) {
+        double totalTime = 0.0;
+        int n = dist.length;
+
+        // Trains 0 .. n-2 must depart at integer hours, so round up ride time
+        for (int i = 0; i < n - 1; i++) {
+            totalTime += Math.ceil((double) dist[i] / speed);
+        }
+
+        // Last train (n - 1) has no next train to wait for
+        totalTime += (double) dist[n - 1] / speed;
+
+        return totalTime <= hour;
+    }
+}
+13. LC 378 kth smallest element in a sorted matrix
+code:
+class Solution {
+    public int kthSmallest(int[][] matrix, int k) {
+        int n = matrix.length;
+        int left = matrix[0][0];
+        int right = matrix[n - 1][n - 1];
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            int count = countLessOrEqual(matrix, mid);
+
+            if (count < k) {
+                // Fewer than k elements are <= mid; the kth smallest is strictly larger
+                left = mid + 1;
+            } else {
+                // At least k elements are <= mid; answer is mid or smaller
+                right = mid;
+            }
+        }
+
+        return left;
+    }
+
+    private int countLessOrEqual(int[][] matrix, int target) {
+        int n = matrix.length;
+        int row = n - 1;
+        int col = 0;
+        int count = 0;
+
+        // Staircase walk starting at bottom-left: up decreases row, right increases col
+        while (row >= 0 && col < n) {
+            if (matrix[row][col] <= target) {
+                // Every element in this column from row 0 down to row is <= target
+                count += row + 1;
+                col++;
+            } else {
+                row--;
+            }
+        }
+
+        return count;
+    }
+}
+14. LC 668  kth smallest number in multiplication table
+code:
+class Solution {
+    public int findKthNumber(int m, int n, int k) {
+        int left = 1;
+        int right = m * n;
+
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            int count = countLessOrEqual(m, n, mid);
+
+            if (count < k) {
+                // Fewer than k numbers are <= mid; kth smallest is strictly larger
+                left = mid + 1;
+            } else {
+                // At least k numbers are <= mid; answer is mid or smaller
+                right = mid;
+            }
+        }
+
+        return left;
+    }
+
+    private int countLessOrEqual(int m, int n, int target) {
+        int count = 0;
+
+        // Row i (1-indexed) contains multiples i * 1, i * 2, ..., i * n
+        for (int i = 1; i <= m; i++) {
+            count += Math.min(target / i, n);
+        }
+
+        return count;
+    }
+}
+15. LC 2141 maximum running time of n computers
+code:
+class Solution {
+    public long maxRunTime(int n, int[] batteries) {
+        long totalEnergy = 0L;
+        for (int b : batteries) {
+            totalEnergy += b;
+        }
+
+        long left = 0L;
+        long right = totalEnergy / n;
+
+        while (left < right) {
+            // Bias mid upward so two-element ranges [a, a+1] test a+1 first
+            long mid = left + (right - left + 1) / 2;
+
+            if (canRunFor(n, batteries, mid)) {
+                // Can run all n computers for mid minutes; try for more
+                left = mid;
+            } else {
+                // Not enough usable energy to run for mid minutes; try less
+                right = mid - 1;
+            }
+        }
+
+        return left;
+    }
+
+    private boolean canRunFor(int n, int[] batteries, long targetMinutes) {
+        long requiredEnergy = (long) n * targetMinutes;
+        long usableEnergy = 0L;
+
+        // A single battery can run at most one computer at any given moment,
+        // so at most targetMinutes of its capacity can contribute to a targetMinutes run.
+        for (int b : batteries) {
+            usableEnergy += Math.min((long) b, targetMinutes);
+            if (usableEnergy >= requiredEnergy) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
